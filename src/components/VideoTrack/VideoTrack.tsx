@@ -31,12 +31,17 @@ export default function VideoTrack({
 
   useEffect(() => {
     containerRef.current.appendChild(videoEl);
-    if (!videoEl.srcObject) {
-      videoEl.srcObject = streamRef.current;
-    }
+    // When a value is assigned to the srcObject property, it causes a brief flicker in video elements that are already
+    // displaying video. To prevent this, we assign a value to srcObject only once. If this component is rendered
+    // with a new video track, we update the video element by replacing the MediaStreamTrack in the MediaStream.
+    // This allows us to display a new participant without a flicker in the video. See 'updateStream' function.
+    videoEl.srcObject = streamRef.current;
     videoEl.muted = true;
     videoEl.autoplay = true;
-  }, []);
+    return () => {
+      containerRef.current.removeChild(videoEl);
+    };
+  }, [videoEl]);
 
   useEffect(() => {
     if (track.setPriority && priority) {
