@@ -8,4 +8,7 @@ module.exports = {
   snapshotSerializers: ['enzyme-to-json/serializer'],
   setupFiles: ['<rootDir>/src/setupTests.ts'],
   reporters: ['default', 'jest-junit'],
+  moduleNameMapper: {
+    '\\.(css|scss)$': 'identity-obj-proxy',
+  },
 };
