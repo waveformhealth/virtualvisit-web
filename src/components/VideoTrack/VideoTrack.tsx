@@ -11,16 +11,13 @@ interface VideoTrackProps {
   videoEl?: HTMLVideoElement;
 }
 
-export function attach(videoTrack: any, videoEl: any) {
-  const stream = videoEl.srcObject || new MediaStream();
-  stream.getVideoTracks().forEach((track: any) => stream.removeTrack(track));
-  stream.addTrack(videoTrack.mediaStreamTrack as any);
-  console.log(videoEl.srcObject);
-  if (!videoEl.srcObject) {
-    videoEl.srcObject = stream;
+function updateStream(stream: MediaStream, track: MediaStreamTrack) {
+  const tracks = stream.getTracks();
+  if (tracks.includes(track)) {
+    return;
   }
-  videoEl.pause();
-  videoEl.play();
+  tracks.forEach(track => stream.removeTrack(track));
+  stream.addTrack(track);
 }
 
 export default function VideoTrack({
@@ -29,20 +26,23 @@ export default function VideoTrack({
   priority,
   videoEl = document.createElement('video'),
 }: VideoTrackProps) {
-  const ref = useRef<HTMLDivElement>(null!);
+  const containerRef = useRef<HTMLDivElement>(null!);
+  const streamRef = useRef(new MediaStream());
 
   useEffect(() => {
-    ref.current.appendChild(videoEl);
+    containerRef.current.appendChild(videoEl);
+    if (!videoEl.srcObject) {
+      videoEl.srcObject = streamRef.current;
+    }
     videoEl.muted = true;
     videoEl.autoplay = true;
   }, []);
 
   useEffect(() => {
-    const el = videoEl;
     if (track.setPriority && priority) {
       track.setPriority(priority);
     }
-    attach(track, el);
+    updateStream(streamRef.current, track.mediaStreamTrack);
     return () => {
       if (track.setPriority && priority) {
         // Passing `null` to setPriority will set the track's priority to that which it was published with.
@@ -51,5 +51,5 @@ export default function VideoTrack({
     };
   }, [track, priority]);
 
-  return <div ref={ref} className={clsx(classes.container, { [classes.isLocal]: isLocal })} />;
+  return <div ref={containerRef} className={clsx(classes.container, { [classes.isLocal]: isLocal })} />;
 }
