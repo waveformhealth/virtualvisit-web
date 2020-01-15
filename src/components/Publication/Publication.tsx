@@ -18,9 +18,10 @@ interface PublicationProps {
   isLocal: boolean;
   disableAudio?: boolean;
   videoPriority?: Track.Priority;
+  videoEl?: HTMLVideoElement;
 }
 
-export default function Publication({ publication, isLocal, disableAudio, videoPriority }: PublicationProps) {
+export default function Publication({ publication, isLocal, disableAudio, videoPriority, videoEl }: PublicationProps) {
   const track = useTrack(publication);
 
   if (!track) return null;
@@ -32,6 +33,7 @@ export default function Publication({ publication, isLocal, disableAudio, videoP
           track={track as IVideoTrack}
           priority={videoPriority}
           isLocal={track.name === 'camera' && isLocal}
+          videoEl={videoEl}
         />
       );
     case 'audio':

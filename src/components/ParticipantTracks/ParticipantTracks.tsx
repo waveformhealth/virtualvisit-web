@@ -9,6 +9,7 @@ interface ParticipantTracksProps {
   disableAudio?: boolean;
   enableScreenShare?: boolean;
   videoPriority?: Track.Priority;
+  videoEl?: HTMLVideoElement;
 }
 
 /*
@@ -24,6 +25,7 @@ export default function ParticipantTracks({
   disableAudio,
   enableScreenShare,
   videoPriority,
+  videoEl,
 }: ParticipantTracksProps) {
   const { room } = useVideoContext();
   const publications = usePublications(participant);
@@ -32,7 +34,7 @@ export default function ParticipantTracks({
   let filteredPublications;
 
   if (enableScreenShare && publications.some(p => p.trackName === 'screen')) {
-    filteredPublications = publications.filter(p => p.trackName !== 'camera');
+    filteredPublications = publications.filter(p => p.trackName === 'screen');
   } else {
     filteredPublications = publications.filter(p => p.trackName !== 'screen');
   }
@@ -47,6 +49,7 @@ export default function ParticipantTracks({
           isLocal={isLocal}
           disableAudio={disableAudio}
           videoPriority={videoPriority}
+          videoEl={videoEl}
         />
       ))}
     </>
