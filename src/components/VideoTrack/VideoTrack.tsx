@@ -39,6 +39,7 @@ function updateStream(stream: MediaStream, track: MediaStreamTrack) {
 export default function VideoTrack({ track, isLocal, priority, videoEl }: VideoTrackProps) {
   const classes = useStyles();
   const containerRef = useRef<HTMLDivElement>(null!);
+  const streamRef = useRef(new MediaStream());
   const videoElRef = useRef(videoEl);
 
   useEffect(() => {
@@ -52,8 +53,8 @@ export default function VideoTrack({ track, isLocal, priority, videoEl }: VideoT
       // When a value is assigned to the srcObject property, it causes a brief flicker in video elements that are already
       // displaying video. To prevent this, we assign a value to srcObject only once. If this component is rendered
       // with a new video track, we update the video element by replacing the MediaStreamTrack in the MediaStream.
-      // This allows us to display a new participant without a flicker in the video.
-      el.srcObject = new MediaStream();
+      // This allows us to display a new participant without a flicker in the video. See 'updateSteam' function.
+      el.srcObject = streamRef.current;
     }
     el.muted = true;
     el.autoplay = true;
@@ -63,8 +64,8 @@ export default function VideoTrack({ track, isLocal, priority, videoEl }: VideoT
     if (track.setPriority && priority) {
       track.setPriority(priority);
     }
-    const el = videoElRef.current;
-    track.attach(el);
+
+    updateStream(streamRef.current, track.mediaStreamTrack);
 
     return () => {
       if (track.setPriority && priority) {
