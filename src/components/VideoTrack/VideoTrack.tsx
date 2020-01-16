@@ -1,8 +1,24 @@
-import classes from './VideoTrack.module.scss';
 import clsx from 'clsx';
+import { makeStyles } from '@material-ui/core/styles';
 import React, { useRef, useEffect } from 'react';
 import { IVideoTrack } from '../../types';
 import { Track } from 'twilio-video';
+
+const useStyles = makeStyles({
+  container: {
+    display: 'contents',
+    '& video': {
+      width: '100%',
+      maxHeight: '100%',
+      objectFit: 'contain',
+    },
+  },
+  isLocal: {
+    '& video': {
+      transform: 'rotateY(180deg)',
+    },
+  },
+});
 
 interface VideoTrackProps {
   track: IVideoTrack;
@@ -11,7 +27,17 @@ interface VideoTrackProps {
   videoEl?: HTMLVideoElement;
 }
 
+function updateStream(stream: MediaStream, track: MediaStreamTrack) {
+  const tracks = stream.getTracks();
+  if (tracks.includes(track)) {
+    return;
+  }
+  tracks.forEach(track => stream.removeTrack(track));
+  stream.addTrack(track);
+}
+
 export default function VideoTrack({ track, isLocal, priority, videoEl }: VideoTrackProps) {
+  const classes = useStyles();
   const containerRef = useRef<HTMLDivElement>(null!);
   const videoElRef = useRef(videoEl);
 
@@ -37,12 +63,10 @@ export default function VideoTrack({ track, isLocal, priority, videoEl }: VideoT
     if (track.setPriority && priority) {
       track.setPriority(priority);
     }
-
-    const stream = videoElRef.current!.srcObject as MediaStream;
-    stream.addTrack(track.mediaStreamTrack);
+    const el = videoElRef.current;
+    track.attach(el);
 
     return () => {
-      stream.removeTrack(track.mediaStreamTrack);
       if (track.setPriority && priority) {
         // Passing `null` to setPriority will set the track's priority to that which it was published with.
         track.setPriority(null);
