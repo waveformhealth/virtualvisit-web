@@ -8,6 +8,11 @@ jest.mock('../../hooks/useVideoContext/useVideoContext');
 
 const mockedVideoContext = useVideoContext as jest.Mock<IVideoContext>;
 
+// @ts-ignore - Property 'MediaStream' does not exist on type 'Global'.
+global.MediaStream = function() {
+  return { getTracks: () => [], addTrack: () => {} };
+};
+
 describe('the LocalVideoPreview component', () => {
   it('it should render a VideoTrack component when there is a "camera" track', () => {
     mockedVideoContext.mockImplementation(() => {
@@ -16,7 +21,7 @@ describe('the LocalVideoPreview component', () => {
       } as any;
     });
     const { container } = render(<LocalVideoPreview />);
-    expect(container.firstChild).toEqual(expect.any(window.HTMLVideoElement));
+    expect(container.firstChild!.firstChild).toEqual(expect.any(window.HTMLVideoElement));
   });
 
   it('should render null when there are no "camera" tracks', () => {
