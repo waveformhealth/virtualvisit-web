@@ -8,7 +8,7 @@ export default function MainParticipant() {
   const mainParticipant = useMainSpeaker();
   const [selectedParticipant] = useSelectedParticipant();
 
-  const videoPriority = mainParticipant === selectedParticipant ? 'high' : undefined;
+  const videoPriority = mainParticipant === selectedParticipant ? 'high' : null;
 
   return (
     /* audio is disabled for this participant component because this participant's audio 
