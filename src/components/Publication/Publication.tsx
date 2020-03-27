@@ -35,7 +35,7 @@ export default function Publication({ publication, isLocal, disableAudio, videoP
         />
       );
     case 'audio':
-      return disableAudio ? null : <AudioTrack track={track as IAudioTrack} />;
+      return <AudioTrack track={track as IAudioTrack} muted={disableAudio} />;
     default:
       return null;
   }
