@@ -28,6 +28,7 @@ export default function ParticipantStrip() {
         participant={localParticipant}
         isSelected={selectedParticipant === localParticipant}
         onClick={() => setSelectedParticipant(localParticipant)}
+        disableAudio={true}
       />
       {participants.map(participant => (
         <Participant
