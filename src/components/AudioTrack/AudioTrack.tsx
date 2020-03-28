@@ -3,16 +3,14 @@ import { AudioTrack as IAudioTrack, LocalAudioTrack } from 'twilio-video';
 
 interface AudioTrackProps {
   track: IAudioTrack | LocalAudioTrack;
-  muted?: boolean;
 }
 
-export default function AudioTrack({ track, muted }: AudioTrackProps) {
+export default function AudioTrack({ track }: AudioTrackProps) {
   const ref = useRef<HTMLAudioElement>(null!);
 
   useEffect(() => {
     const el = ref.current;
     track.attach(el);
-    el.muted = Boolean(muted);
     return () => {
       track.detach(el);
     };

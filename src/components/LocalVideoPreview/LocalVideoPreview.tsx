@@ -12,8 +12,8 @@ export default function LocalVideoPreview() {
 
   return (
     <>
-      {videoTrack ? <VideoTrack track={videoTrack} isLocal /> : null}
-      {audioTrack ? <AudioTrack track={audioTrack} muted /> : null}
+      {videoTrack && <VideoTrack track={videoTrack} isLocal />}
+      {audioTrack && <AudioTrack track={audioTrack} />}
     </>
   );
 }
