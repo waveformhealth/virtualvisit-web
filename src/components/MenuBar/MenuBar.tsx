@@ -11,11 +11,13 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
 
 import { useAppState } from '../../state';
-import { useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { Typography } from '@material-ui/core';
 import FlipCameraButton from './FlipCameraButton/FlipCameraButton';
+
+import qs from 'query-string';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -62,18 +64,29 @@ const useStyles = makeStyles((theme: Theme) =>
 export default function MenuBar() {
   const classes = useStyles();
   const { URLRoomName } = useParams();
+  const { search } = useLocation();
   const { user, getToken, isFetching } = useAppState();
   const { isConnecting, connect } = useVideoContext();
   const roomState = useRoomState();
 
   const [name, setName] = useState<string>(user?.displayName || '');
   const [roomName, setRoomName] = useState<string>('');
+  const [roomCode, setRoomCode] = useState<string>('');
+  const [roomReq, setRoomReq] = useState<string>('');
 
   useEffect(() => {
     if (URLRoomName) {
       setRoomName(URLRoomName);
     }
   }, [URLRoomName]);
+
+  useEffect(() => {
+    if (search) {
+      const queryParams = qs.parse(search, {});
+      const room = queryParams.room as string;
+      setRoomReq(room);
+    }
+  }, [search]);
 
   const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
     setName(event.target.value);
@@ -83,13 +96,18 @@ export default function MenuBar() {
     setRoomName(event.target.value);
   };
 
+  const handleRoomCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setRoomCode(event.target.value);
+  };
+
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // If this app is deployed as a twilio function, don't change the URL because routing isn't supported.
     if (!window.location.origin.includes('twil.io')) {
       window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
     }
-    getToken(name, roomName).then(token => connect(token));
+    console.log(roomReq, roomCode);
+    getToken(roomReq, roomCode).then(token => connect(token));
   };
 
   return (
@@ -112,11 +130,11 @@ export default function MenuBar() {
               </Typography>
             )}
             <TextField
-              id="menu-room"
-              label="Room"
+              id="menu-code"
+              label="Room Access Code"
               className={classes.textField}
-              value={roomName}
-              onChange={handleRoomNameChange}
+              value={roomCode}
+              onChange={handleRoomCodeChange}
               margin="dense"
             />
             <Button
@@ -124,7 +142,7 @@ export default function MenuBar() {
               type="submit"
               color="primary"
               variant="contained"
-              disabled={isConnecting || !name || !roomName || isFetching}
+              disabled={isConnecting || !name || !roomCode || isFetching}
             >
               Join Room
             </Button>

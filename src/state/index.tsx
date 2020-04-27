@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import { TwilioError } from 'twilio-video';
 import useFirebaseAuth from './useFirebaseAuth/useFirebaseAuth';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
+import useRoomCodeAuth from './useRoomCodeAuth/useRoomCodeAuth';
 import { User } from 'firebase';
 
 export interface StateContextType {
@@ -45,6 +46,11 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
     contextValue = {
       ...contextValue,
       ...usePasscodeAuth(), // eslint-disable-line react-hooks/rules-of-hooks
+    };
+  } else if (process.env.REACT_APP_SET_AUTH === 'roomcode') {
+    contextValue = {
+      ...contextValue,
+      ...useRoomCodeAuth(), // eslint-disable-line react-hooks/rules-of-hooks
     };
   } else {
     contextValue = {
