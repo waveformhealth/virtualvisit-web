@@ -106,7 +106,6 @@ export default function MenuBar() {
     if (!window.location.origin.includes('twil.io')) {
       window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
     }
-    console.log(roomReq, roomCode);
     getToken(roomReq, roomCode).then(token => connect(token));
   };
 
@@ -115,20 +114,6 @@ export default function MenuBar() {
       <Toolbar className={classes.toolbar}>
         {roomState === 'disconnected' ? (
           <form className={classes.form} onSubmit={handleSubmit}>
-            {window.location.search.includes('customIdentity=true') || !user?.displayName ? (
-              <TextField
-                id="menu-name"
-                label="Name"
-                className={classes.textField}
-                value={name}
-                onChange={handleNameChange}
-                margin="dense"
-              />
-            ) : (
-              <Typography className={classes.displayName} variant="body1">
-                {user.displayName}
-              </Typography>
-            )}
             <TextField
               id="menu-code"
               label="Room Access Code"
@@ -142,7 +127,7 @@ export default function MenuBar() {
               type="submit"
               color="primary"
               variant="contained"
-              disabled={isConnecting || !name || !roomCode || isFetching}
+              disabled={isConnecting || !roomCode || isFetching}
             >
               Join Room
             </Button>
