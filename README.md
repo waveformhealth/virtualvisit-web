@@ -1,3 +1,18 @@
+# Virtual Visit Web
+
+## About
+
+This is the web app component of Virtual Visit, a product for making video calls simple for patients in hospitals.
+This project was created during the [Twilio x DEV community hackathon](https://dev.to/devteam/announcing-the-twilio-hackathon-on-dev-2lh8).
+
+This React app is a fork of [twilio-video-app-react](https://github.com/twilio/twilio-video-app-react) with modifications to support joining a room via an invitation and room code. The README of the original project can be found [below](#twilio-video-react-app).
+
+## Set up
+
+Modify the `.env` at the root of this project to set `REACT_APP_SET_AUTH` to `roomcode`.
+
+Also in the `.env` file, set `REACT_APP_TOKEN_ENDPOINT` to the `/v1/token` endpoint of a running instance of [virtualvisit-server](https://github.com/waveformhealth/virtualvisit-server).
+
 # Twilio Video React App
 
 [![CircleCI](https://circleci.com/gh/twilio/twilio-video-app-react.svg?style=svg)](https://circleci.com/gh/twilio/twilio-video-app-react)
