@@ -17,7 +17,7 @@ export default createMuiTheme({
   palette: {
     type: 'dark',
     primary: {
-      main: '#F22F46',
+      main: '#3d5a80',
     },
   },
   sidebarWidth: 260,
