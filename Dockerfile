@@ -5,6 +5,10 @@ WORKDIR /app
 
 ENV PATH /app/node_modules/.bin:$PATH
 
+# https://devcenter.heroku.com/articles/build-docker-images-heroku-yml#setting-build-time-environment-variables
+ARG REACT_APP_SET_AUTH
+ARG REACT_APP_TOKEN_ENDPOINT
+
 COPY package.json ./
 COPY package-lock.json ./
 
