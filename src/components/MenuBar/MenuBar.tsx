@@ -2,7 +2,6 @@ import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
-import LocalAudioLevelIndicator from './LocalAudioLevelIndicator/LocalAudioLevelIndicator';
 import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import TextField from '@material-ui/core/TextField';
@@ -16,6 +15,7 @@ import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { Typography } from '@material-ui/core';
 import FlipCameraButton from './FlipCameraButton/FlipCameraButton';
+import LocalAudioLevelIndicator from './DeviceSelector/LocalAudioLevelIndicator/LocalAudioLevelIndicator';
 
 import qs from 'query-string';
 
@@ -66,19 +66,10 @@ export default function MenuBar() {
   const { URLRoomName } = useParams();
   const { search } = useLocation();
   const { user, getToken, isFetching } = useAppState();
-  const { isConnecting, connect } = useVideoContext();
+  const { isConnecting, connect, isAcquiringLocalTracks } = useVideoContext();
   const roomState = useRoomState();
 
-  const [name, setName] = useState<string>(user?.displayName || '');
-  const [roomName, setRoomName] = useState<string>('');
-  const [roomCode, setRoomCode] = useState<string>('');
   const [roomReq, setRoomReq] = useState<string>('');
-
-  useEffect(() => {
-    if (URLRoomName) {
-      setRoomName(URLRoomName);
-    }
-  }, [URLRoomName]);
 
   useEffect(() => {
     if (search) {
@@ -88,25 +79,13 @@ export default function MenuBar() {
     }
   }, [search]);
 
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const handleRoomNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRoomName(event.target.value);
-  };
-
-  const handleRoomCodeChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRoomCode(event.target.value);
-  };
-
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     // If this app is deployed as a twilio function, don't change the URL because routing isn't supported.
     if (!window.location.origin.includes('twil.io')) {
-      window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}${window.location.search || ''}`));
+      window.history.replaceState(null, '', window.encodeURI(`/room/${roomReq}${window.location.search || ''}`));
     }
-    getToken(roomReq, roomCode).then(token => connect(token));
+    getToken('', roomReq).then(token => connect(token));
   };
 
   return (
@@ -114,31 +93,23 @@ export default function MenuBar() {
       <Toolbar className={classes.toolbar}>
         {roomState === 'disconnected' ? (
           <form className={classes.form} onSubmit={handleSubmit}>
-            <TextField
-              id="menu-code"
-              label="Room Access Code"
-              className={classes.textField}
-              value={roomCode}
-              onChange={handleRoomCodeChange}
-              margin="dense"
-            />
             <Button
               className={classes.joinButton}
               type="submit"
               color="primary"
               variant="contained"
-              disabled={isConnecting || !roomCode || isFetching}
+              disabled={isAcquiringLocalTracks || isConnecting || !roomReq || isFetching}
             >
               Join Room
             </Button>
             {(isConnecting || isFetching) && <CircularProgress className={classes.loadingSpinner} />}
           </form>
         ) : (
-          <h3>{roomName}</h3>
+          <h3>{roomReq}</h3>
         )}
         <div className={classes.rightButtonContainer}>
-          <LocalAudioLevelIndicator />
           <FlipCameraButton />
+          <LocalAudioLevelIndicator />
           <ToggleFullscreenButton />
           <Menu />
         </div>

@@ -10,14 +10,14 @@ const getRoomName = () =>
 
 context('A video app user', () => {
   describe('before entering a room', () => {
-    it('should see their audio level indicator moving', () => {
+    it('should see their audio level indicator moving in the media device panel', () => {
       cy.visit('/');
       cy.get('clipPath rect')
         .invoke('attr', 'y')
         .should('be', 21);
       cy.get('clipPath rect')
         .invoke('attr', 'y')
-        .should('be.lessThan', 20);
+        .should('be.lessThan', 21);
     });
   });
 
@@ -45,7 +45,7 @@ context('A video app user', () => {
         .shouldBeSameVideoAs('[data-cy-main-participant]');
     });
 
-    it.skip('should be able to hear the other participant', () => {
+    it('should be able to hear the other participant', () => {
       cy.getParticipant('test1').shouldBeMakingSound();
     });
 
@@ -56,7 +56,7 @@ context('A video app user', () => {
         .should('be', 21);
       cy.get('clipPath rect')
         .invoke('attr', 'y')
-        .should('be.lessThan', 20);
+        .should('be.lessThan', 21);
     });
 
     it('should see other participants disconnect when they close their browser', () => {
@@ -85,7 +85,7 @@ context('A video app user', () => {
         .shouldBeSameVideoAs('[data-cy-main-participant]');
     });
 
-    it.skip('should be able to hear the other participant', () => {
+    it('should be able to hear the other participant', () => {
       cy.getParticipant('test1').shouldBeMakingSound();
     });
   });
@@ -116,7 +116,7 @@ context('A video app user', () => {
         .shouldBeColor('green');
     });
 
-    it.skip('should be able to hear the other participants', () => {
+    it('should be able to hear the other participants', () => {
       cy.getParticipant('test1').shouldBeMakingSound();
       cy.getParticipant('test2').shouldBeMakingSound();
       cy.getParticipant('test3').shouldBeMakingSound();
@@ -149,7 +149,7 @@ context('A video app user', () => {
         .shouldBeColor('green');
     });
 
-    it.skip('should be able to hear the other participants', () => {
+    it('should be able to hear the other participants', () => {
       cy.getParticipant('test1').shouldBeMakingSound();
       cy.getParticipant('test2').shouldBeMakingSound();
       cy.getParticipant('test3').shouldBeMakingSound();

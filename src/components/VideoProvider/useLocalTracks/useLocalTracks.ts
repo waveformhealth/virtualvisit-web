@@ -1,95 +1,76 @@
+import { DEFAULT_VIDEO_CONSTRAINTS } from '../../../constants';
 import { useCallback, useEffect, useState } from 'react';
 import Video, { LocalVideoTrack, LocalAudioTrack, CreateLocalTrackOptions } from 'twilio-video';
 
-// This function ensures that the user has granted the browser permission to use audio and video
-// devices. If permission has not been granted, it will cause the browser to ask for permission
-// for audio and video at the same time (as opposed to separate requests).
-function ensureMediaPermissions() {
-  return navigator.mediaDevices
-    .enumerateDevices()
-    .then(devices => devices.every(device => !(device.deviceId && device.label)))
-    .then(shouldAskForMediaPermissions => {
-      if (shouldAskForMediaPermissions) {
-        navigator.mediaDevices
-          .getUserMedia({ audio: true, video: true })
-          .then(mediaStream => mediaStream.getTracks().forEach(track => track.stop()));
-      }
+export default function useLocalTracks() {
+  const [audioTrack, setAudioTrack] = useState<LocalAudioTrack>();
+  const [videoTrack, setVideoTrack] = useState<LocalVideoTrack>();
+  const [isAcquiringLocalTracks, setIsAcquiringLocalTracks] = useState(false);
+
+  const getLocalAudioTrack = useCallback((deviceId?: string) => {
+    const options: CreateLocalTrackOptions = {};
+
+    if (deviceId) {
+      options.deviceId = { exact: deviceId };
+    }
+
+    return Video.createLocalAudioTrack(options).then(newTrack => {
+      setAudioTrack(newTrack);
+      return newTrack;
     });
-}
-
-export function useLocalAudioTrack() {
-  const [track, setTrack] = useState<LocalAudioTrack>();
-
-  useEffect(() => {
-    ensureMediaPermissions().then(() =>
-      Video.createLocalAudioTrack().then(newTrack => {
-        setTrack(newTrack);
-      })
-    );
   }, []);
 
-  useEffect(() => {
-    const handleStopped = () => setTrack(undefined);
-    if (track) {
-      track.on('stopped', handleStopped);
-      return () => {
-        track.off('stopped', handleStopped);
-      };
-    }
-  }, [track]);
-
-  return track;
-}
-
-export function useLocalVideoTrack() {
-  const [track, setTrack] = useState<LocalVideoTrack>();
-
-  const getLocalVideoTrack = useCallback((facingMode?: CreateLocalTrackOptions['facingMode']) => {
+  const getLocalVideoTrack = useCallback((newOptions?: CreateLocalTrackOptions) => {
+    // In the DeviceSelector and FlipCameraButton components, a new video track is created,
+    // then the old track is unpublished and the new track is published. Unpublishing the old
+    // track and publishing the new track at the same time sometimes causes a conflict when the
+    // track name is 'camera', so here we append a timestamp to the track name to avoid the
+    // conflict.
     const options: CreateLocalTrackOptions = {
-      frameRate: 24,
-      height: 720,
-      width: 1280,
-      name: 'camera',
+      ...(DEFAULT_VIDEO_CONSTRAINTS as {}),
+      name: `camera-${Date.now()}`,
+      ...newOptions,
     };
 
-    if (facingMode) {
-      options.facingMode = facingMode;
-    }
-
-    return ensureMediaPermissions().then(() =>
-      Video.createLocalVideoTrack(options).then(newTrack => {
-        setTrack(newTrack);
-        return newTrack;
-      })
-    );
+    return Video.createLocalVideoTrack(options).then(newTrack => {
+      setVideoTrack(newTrack);
+      return newTrack;
+    });
   }, []);
 
-  useEffect(() => {
-    // We get a new local video track when the app loads.
-    getLocalVideoTrack();
-  }, [getLocalVideoTrack]);
-
-  useEffect(() => {
-    const handleStopped = () => setTrack(undefined);
-    if (track) {
-      track.on('stopped', handleStopped);
-      return () => {
-        track.off('stopped', handleStopped);
-      };
+  const removeLocalVideoTrack = useCallback(() => {
+    if (videoTrack) {
+      videoTrack.stop();
+      setVideoTrack(undefined);
     }
-  }, [track]);
+  }, [videoTrack]);
 
-  return [track, getLocalVideoTrack] as const;
-}
-
-export default function useLocalTracks() {
-  const audioTrack = useLocalAudioTrack();
-  const [videoTrack, getLocalVideoTrack] = useLocalVideoTrack();
+  useEffect(() => {
+    setIsAcquiringLocalTracks(true);
+    Video.createLocalTracks({
+      video: {
+        ...(DEFAULT_VIDEO_CONSTRAINTS as {}),
+        name: `camera-${Date.now()}`,
+      },
+      audio: true,
+    })
+      .then(tracks => {
+        const videoTrack = tracks.find(track => track.kind === 'video');
+        const audioTrack = tracks.find(track => track.kind === 'audio');
+        if (videoTrack) {
+          setVideoTrack(videoTrack as LocalVideoTrack);
+        }
+        if (audioTrack) {
+          setAudioTrack(audioTrack as LocalAudioTrack);
+        }
+      })
+      .finally(() => setIsAcquiringLocalTracks(false));
+  }, []);
 
   const localTracks = [audioTrack, videoTrack].filter(track => track !== undefined) as (
     | LocalAudioTrack
     | LocalVideoTrack
   )[];
 
-  return { localTracks, getLocalVideoTrack };
+  return { localTracks, getLocalVideoTrack, getLocalAudioTrack, isAcquiringLocalTracks, removeLocalVideoTrack };
 }

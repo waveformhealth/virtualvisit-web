@@ -5,6 +5,7 @@ import { IVideoContext } from '../VideoProvider';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 
 jest.mock('../../hooks/useVideoContext/useVideoContext');
+jest.mock('../../hooks/useMediaStreamTrack/useMediaStreamTrack');
 
 const mockedVideoContext = useVideoContext as jest.Mock<IVideoContext>;
 
@@ -13,7 +14,12 @@ describe('the LocalVideoPreview component', () => {
     mockedVideoContext.mockImplementation(() => {
       return {
         localTracks: [
-          { name: 'camera', attach: jest.fn(), detach: jest.fn(), mediaStreamTrack: { getSettings: () => ({}) } },
+          {
+            name: 'camera-123456',
+            attach: jest.fn(),
+            detach: jest.fn(),
+            mediaStreamTrack: { getSettings: () => ({}) },
+          },
         ],
       } as any;
     });

@@ -13,6 +13,11 @@ declare module 'twilio-video' {
   interface LocalVideoTrack {
     isSwitchedOff: undefined;
     setPriority: undefined;
+    restart: (constraints: MediaStreamConstraints['video']) => Promise<void>;
+  }
+
+  interface LocalAudioTrack {
+    restart: (constraints: MediaStreamConstraints['audio']) => Promise<void>;
   }
 
   interface RemoteVideoTrack {
@@ -26,8 +31,18 @@ declare module 'twilio-video' {
 }
 
 declare global {
+  interface Window {
+    visualViewport?: {
+      scale: number;
+    };
+  }
+
   interface MediaDevices {
     getDisplayMedia(constraints: MediaStreamConstraints): Promise<MediaStream>;
+  }
+
+  interface HTMLMediaElement {
+    setSinkId?(sinkId: string): Promise<undefined>;
   }
 }
 
