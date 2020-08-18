@@ -16,11 +16,11 @@ You must have the following installed:
 
 ## Set up
 
-In the `.env` at the root of this project:
+Create a `.env` at the root of this project and set the following environment variables:
 
-- Set `PORT=8023`
-- Set `REACT_APP_SET_AUTH=none`
-- Set `REACT_APP_TOKEN_ENDPOINT` to the full `/token` endpoint URL of a running instance of [virtualvisit-twilio-serverless](https://github.com/waveformhealth/virtualvisit-twilio-serverless)
+- `PORT=8023`
+- `REACT_APP_SET_AUTH=none`
+- `REACT_APP_TOKEN_ENDPOINT` to the full `/token` endpoint URL of a running instance of [virtualvisit-twilio-serverless](https://github.com/waveformhealth/virtualvisit-twilio-serverless)
 
 ## Install Dependencies
 
