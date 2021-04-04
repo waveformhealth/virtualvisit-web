@@ -2,5 +2,5 @@ build:
   docker:
     web: Dockerfile
   config:
-    REACT_APP_SET_AUTH: roomcode
+    REACT_APP_SET_AUTH: none
     REACT_APP_TOKEN_ENDPOINT: https://api.waveformhealth.com/v1/token
